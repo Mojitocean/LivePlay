@@ -1,7 +1,7 @@
 package com.mg.redis;
 
 
-import com.esotericsoftware.kryo.serializers.TaggedFieldSerializer;
+import com.mg.core.domain.R;
 import com.mg.redis.utils.RedisUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -9,6 +9,7 @@ import lombok.extern.log4j.Log4j2;
 import org.redisson.api.RLock;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.concurrent.TimeUnit;
@@ -18,6 +19,7 @@ import java.util.concurrent.TimeUnit;
  * 1、分布式锁的看门狗机制不要自己指定持持有锁的时间，否则看门狗机制会失效
  * 2、只要方法还在运行，看门狗机制会每隔10S续期一次且一直续期，这就会导致某个人一直持有锁
  * 3、可以强制解锁
+ *
  * @author mj
  * @className RedisController
  * @date 2025/11/7
@@ -34,7 +36,7 @@ public class RedisController {
     @GetMapping("/getLock")
     public String getLock() throws InterruptedException {
         log.info("线程名称：{}", Thread.currentThread().getName());
-        RedisUtil.lock("lock-mj" , 20, TimeUnit.SECONDS);
+        RedisUtil.lock("lock-mj", 20, TimeUnit.SECONDS);
         RLock rLock = RedisUtil.getLock("lock-mj");
         log.info("锁的持有次数1：{}", rLock.getHoldCount());
         log.info("锁的剩余时间1：{}", rLock.remainTimeToLive());
@@ -66,7 +68,7 @@ public class RedisController {
 
     @Operation(summary = "释放锁--强制释放锁")
     @GetMapping("/unLock")
-    public String unLock()   {
+    public String unLock() {
         RLock rLock = RedisUtil.getLock("lock-mj");
         log.info("锁名称：{}", rLock.getName());
         log.info("锁是否被锁：{}", rLock.isLocked());
@@ -76,5 +78,15 @@ public class RedisController {
         RedisUtil.forceUnlock(rLock.getName());
         log.info("强制解锁后锁是否被锁：{}", rLock.isLocked());
         return rLock.getName();
+    }
+
+    @Operation(summary = "限流方法--滑动窗口")
+    @GetMapping("/allow")
+    public R<String> allow(@RequestParam String userId) {
+        String key = "user:" + userId;
+        if (!RedisUtil.allow(key, 5, 50000)) { // 每秒最多 5 次
+            return R.error("请求过于频繁，请稍后再试!");
+        }
+        return R.ok();
     }
 }

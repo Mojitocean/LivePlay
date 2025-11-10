@@ -10,10 +10,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -47,7 +44,7 @@ public class RedisUtil {
     }
 
     /**
-     * 限流方法
+     * 限流方法--令牌桶
      *
      * @param key              限流key
      * @param rateType         限流类型（OVERALL-总速率/PER_CLIENT-单客户端速率）
@@ -62,6 +59,48 @@ public class RedisUtil {
             return rateLimiter.availablePermits();
         }
         return -1L;
+    }
+
+    /**
+     * 判断是否允许通过限流
+     *
+     * @param key          限流Key（建议包含业务维度，如 user:123, api:/login）
+     * @param limit        限流阈值（在窗口期内允许的请求数）
+     * @param windowMillis 窗口大小（毫秒）
+     * @return true=允许请求；false=被限流
+     */
+    public static boolean allow(String key, int limit, long windowMillis) {
+        RScript script = CLIENT.getScript(StringCodec.INSTANCE);
+
+        // Lua脚本
+        String lua = "local key = KEYS[1] " +
+                "local now = tonumber(ARGV[1]) " +
+                "local window = tonumber(ARGV[2]) " +
+                "local limit = tonumber(ARGV[3]) " +
+                "local expire = tonumber(ARGV[4]) " +
+                "redis.call('ZREMRANGEBYSCORE', key, 0, now - window) " +
+                "local count = redis.call('ZCARD', key) " +
+                "if count < limit then " +
+                "  redis.call('ZADD', key, now, now) " +
+                "  redis.call('EXPIRE', key, expire) " +
+                "  return 1 " +
+                "else " +
+                "  return 0 " +
+                "end";
+
+        long now = System.currentTimeMillis();
+
+        // 设置过期时间稍微大一点，防止极端延迟导致key提前过期
+        long expireSeconds = (windowMillis / 1000) + 5;
+
+        Boolean allowed = script.eval(
+                RScript.Mode.READ_WRITE,
+                lua,
+                RScript.ReturnType.BOOLEAN,
+                Collections.singletonList("rate_limit:" + key),
+                now, windowMillis, limit, expireSeconds
+        );
+        return Boolean.TRUE.equals(allowed);
     }
 
 

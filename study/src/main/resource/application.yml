@@ -56,3 +56,10 @@ knife4j:
   enable: true
   setting:
     language: zh_cn
+
+
+#Langchian
+langchain4j:
+  open-ai:
+    chat-model:
+       api-key: sk-
