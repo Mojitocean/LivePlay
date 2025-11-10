@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Annotation profile for LivePlay" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="/Applications/Maven/repository-3.9.9/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
+          <entry name="/Applications/Maven/repository-3.9.9/org/springframework/boot/spring-boot-configuration-processor/3.2.12/spring-boot-configuration-processor-3.2.12.jar" />
+        </processorPath>
+        <module name="common-dubbo" />
+        <module name="study" />
+        <module name="live-stream" />
+        <module name="common-pom" />
+        <module name="common-redis" />
+        <module name="common-core" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="LivePlay" options="-parameters" />
+      <module name="common" options="-parameters" />
+      <module name="common-core" options="-parameters" />
+      <module name="common-dubbo" options="-parameters" />
+      <module name="common-pom" options="-parameters" />
+      <module name="common-redis" options="-parameters" />
+      <module name="live-stream" options="-parameters" />
+      <module name="study" options="-parameters" />
+    </option>
+  </component>
+</project>

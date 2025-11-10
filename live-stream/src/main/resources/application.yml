@@ -1,0 +1,39 @@
+# 端口
+server:
+  port: 9521
+
+# 配置
+spring:
+  application:
+    name: live-stream
+  servlet:
+    multipart:
+      max-file-size: 1GB
+      max-request-size: 1GB
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss  # 定义日期时间格式
+    time-zone: GMT+8                  # 设置时区（中国用GMT+8）
+
+  # redis集群配置
+  data:
+    redis:
+      host: 124.70.84.161
+      port: 6379
+      database: 9
+      password: yzL2rKl6dqa
+      timeout: 2000ms
+
+
+# redisson配置
+redisson:
+  # 全局配置
+  threads: 16
+  nettyThreads: 32
+  # 单机服务配置
+  SingleServerConfig:
+    clientName: LP
+    idleConnectionTimeout: 10000
+    timeout: 3000
+    subscriptionConnectionPoolSize: 50
+    connectionPoolSize: 64
+    connectionMinimumIdleSize: 10

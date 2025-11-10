@@ -1,0 +1,58 @@
+# 端口
+server:
+  port: 9520
+
+# 配置
+spring:
+  application:
+    name: study
+  servlet:
+    multipart:
+      max-file-size: 1GB
+      max-request-size: 1GB
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss  # 定义日期时间格式
+    time-zone: GMT+8                  # 设置时区（中国用GMT+8）
+
+  # redis集群配置
+  data:
+    redis:
+      host: 124.70.84.161
+      port: 6379
+      database: 9
+      password: yzL2rKl6dqa
+      timeout: 2000ms
+
+
+# redisson配置
+redisson:
+  # 全局配置
+  threads: 16
+  nettyThreads: 32
+  # 单机服务配置
+  SingleServerConfig:
+    clientName: LP
+    idleConnectionTimeout: 10000
+    timeout: 3000
+    subscriptionConnectionPoolSize: 50
+    connectionPoolSize: 64
+    connectionMinimumIdleSize: 10
+
+
+# springdoc-openapi项目配置
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: 'default'
+      paths-to-match: '/**'
+      packages-to-scan: com.mg.redis
+# knife4j的增强配置，不需要增强可以不配
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn

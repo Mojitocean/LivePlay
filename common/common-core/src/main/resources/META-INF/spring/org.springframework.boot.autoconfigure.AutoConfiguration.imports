@@ -1,0 +1,2 @@
+com.mg.core.config.ThreadPoolConfig
+com.mg.core.config.OssAutoConfiguration
